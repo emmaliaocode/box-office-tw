@@ -1,6 +1,22 @@
 from bokeh.models import Select, Slider, PrintfTickFormatter
 from bokeh.plotting import figure
 from math import pi
+import pandas as pd
+
+# preprocessing
+class preprocessing:
+    def datetime_set_format(column):
+        return pd.to_datetime(column)
+    
+    def datetime_retrive_year(column):
+        return column.apply(lambda d: str(d.year))
+    
+    def number_set_format(column, num_type):
+        tmp = column.apply(lambda d: str(d).replace(',', ''))
+        return pd.to_numeric(tmp).astype(num_type)
+    
+    def number_divide(column, num_div):
+        return column.div(num_div)
 
 
 def get_column_groups(df, item, append):

@@ -9,26 +9,27 @@ from module import *
 
 
 # import data
-data = pd.read_csv('./data/box_office.csv')
+df = pd.read_csv('./data/box_office.csv')
 
 
 # preprocessing
-data.rename(columns={'統計起始日': 'statistic_date', '上映日期': 'release_date', '上映院數': 'theater', '中文片名': 'name',
+df.rename(columns={'統計起始日': 'statistic_date', '上映日期': 'release_date', '上映院數': 'theater', '中文片名': 'name',
                      '國別地區': 'country', '累計銷售票數': 'ticket', '累計銷售金額': 'revenue'}, inplace=True)
-data['statistic_date'] = pd.to_datetime(data['statistic_date'])
-data['statistic_year'] = data['statistic_date'].apply(lambda d: str(d.year))
-data['release_date'] = pd.to_datetime(data['release_date'])
-data['release_year'] = data['release_date'].apply(lambda d: str(d.year))
-data['ticket'] = data['ticket'].str.replace(',', '')
-data['ticket'] = pd.to_numeric(data['ticket']).astype('Int64')
-data['revenue'] = data['revenue'].str.replace(',', '')
-data['revenue'] = pd.to_numeric(data['revenue']).astype('Float64')
-data['revenue_100m'] = data['revenue'].div(100000000)
-null_index = data.index[(data['ticket'].isnull()) |
-                        (data['revenue_100m'].isnull())]
-data = data.drop(null_index)
 
-df = data.sort_values(['name', 'revenue'], ascending=False).drop_duplicates(
+null_index = df.index[(df['ticket'].isnull()) | (df['revenue'].isnull())]
+df = df.drop(null_index)
+
+df['statistic_date'] = preprocessing.datetime_set_format(df['statistic_date'])
+df['statistic_year'] = preprocessing.datetime_retrive_year(df['statistic_date'])
+df['release_date'] = preprocessing.datetime_set_format(df['release_date'])
+df['release_year'] = preprocessing.datetime_retrive_year(df['release_date'])
+
+df['ticket'] = preprocessing.number_set_format(df['ticket'], 'Int64')
+df['revenue'] = preprocessing.number_set_format(df['revenue'], 'Float64')
+
+df['revenue_100m'] = preprocessing.number_divide(df['revenue'], 100000000)
+
+df = df.sort_values(['name', 'revenue'], ascending=False).drop_duplicates(
     subset='name', keep='last')
 df = df.reset_index(drop=True)
 
